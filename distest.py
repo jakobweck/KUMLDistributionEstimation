@@ -11,6 +11,7 @@ def readcsv(filepath):
 	else:
     		csvFrame = pd.read_csv(filepath)
 	print(csvFrame)
+	print("Success")
 
 if __name__ == "__main__":
 	readcsv(sys.argv[1])
