@@ -4,10 +4,13 @@ import sys
 import os
 
 
-
 def readcsv(filepath):
-    print (os.getcwd()+ "\\" + filepath)
-    csvFrame = pd.read_csv(os.getcwd()+ "\\" + filepath)
-    print(csvFrame)
+	if os.name == 'nt':
+		print (os.getcwd()+ "\\" + filepath)
+		csvFrame = pd.read_csv(os.getcwd()+ "\\" + filepath)
+	else:
+    		csvFrame = pd.read_csv(filepath)
+	print(csvFrame)
 
-readcsv(sys.argv[1])
+if __name__ == "__main__":
+	readcsv(sys.argv[1])
