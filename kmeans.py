@@ -2,12 +2,14 @@ import numpy as np
 import pandas as pd
 import sys
 import os
+import matplotlib.pyplot as plt
+from matplotlib import style
 
 
 def readColumnsFromCSV(filepath, col1, col2):
     print (os.getcwd()+ "\\" + filepath)
     csvFrame = pd.read_csv(os.getcwd()+ "\\" + filepath)
-    csvFrame = csvFrame.iloc[:,[10, 11]]
+    csvFrame = csvFrame.iloc[:,[col1, col2]]
     return csvFrame
 
 
@@ -21,12 +23,13 @@ class KMeans:
     def fit(self, data):
         self.centroids = {}
         #set centroids to first k data points arbitrarily
+        #ideally this would be random data points but this is ok
         for i in range(self.k):
             self.centroids[i] = data[i]
         
         for i in range(self.maxIterations):
             self.classifications = {}
-            #for each iteration give each centroid an empty classification array
+            #on each iteration give each centroid an empty classification array
             for i in range(self.k):
                 self.classifications[i] = []
             #for each data point calculate a distance from each centroid
@@ -37,7 +40,7 @@ class KMeans:
                     classification = distances.index(min(distances))
                     self.classifications[classification].append(featureset)
             prevCentroids = dict(self.centroids)
-            #move each centroid to the average of the points classified belonging to it
+            #move each centroid to the average of the points classified as belonging to it
             for classification in self.classifications:
                 self.centroids[classification] = np.average(self.classifications[classification], axis=0)
             optimized = True
@@ -62,13 +65,21 @@ class KMeans:
         return classification
 
 
-df = readColumnsFromCSV(sys.argv[1], 11, 12)
+df = readColumnsFromCSV(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
 kMeansClass = KMeans(2, .001, 300)
-kMeansClass.fit(df)
-
+kMeansClass.fit(df.values)
+colors = 10*["g","r","c","b","k"]
+#graph the centroids as black circles
 for centroid in kMeansClass.centroids:
-    print(centroid)
+    x = kMeansClass.centroids[centroid][0]
+    y = kMeansClass.centroids[centroid][1]
+    plt.scatter(x, y,marker="o", color="k", s=150, linewidths=5)
+#graph the data points as Xs colored w/r/t their centroid
 for classification in kMeansClass.classifications:
+    color = colors[classification]
     for featureset in kMeansClass.classifications[classification]:
-        print featureset
- 
+        plt.scatter(featureset[0], featureset[1], marker="x", color=color, s=150, linewidths=5)
+print(df.columns)
+plt.xlabel(df.columns[0])
+plt.ylabel(df.columns[1])
+plt.show() 
