@@ -18,7 +18,6 @@ class KMeans:
         #ideally this would be random data points but this is ok
         for i in range(self.k):
             self.centroids[i] = data[i]
-        
         for i in range(self.maxIterations):
             self.classifications = {}
             #on each iteration give each centroid an empty classification array
@@ -34,18 +33,16 @@ class KMeans:
             prevCentroids = dict(self.centroids)
             #move each centroid to the average of the points classified as belonging to it
             for classification in self.classifications:
-                self.centroids[classification] = np.average(self.classifications[classification], axis=0)
+                if(len(self.classifications[classification])!=0):
+                    self.centroids[classification] = np.average(self.classifications[classification], axis=0)
             optimized = True
-            #for each centroid, compare the old and new positions
+            #for each centroid, compare the old and new centroids
             #if it moved less than the tolerance, keep 'optimized' bool true
             #otherwise, make it false
             for c in self.centroids:
                 originalCentroid = prevCentroids[c]
                 newCentroid = self.centroids[c]
-                #this fails if the originalCentroid is 0 - todo handle this
-                centroidMovement = 0
-                else:      
-                    centroidMovement = np.sum((newCentroid-originalCentroid)/originalCentroid*100.0)
+                centroidMovement = np.sum((newCentroid-originalCentroid))
                 centroidMoving = centroidMovement > self.tolerance
                 if centroidMoving:
                     optimized = False
@@ -70,11 +67,14 @@ def main():
     parser.add_argument('-colx', type=int, help='0-based index of the x-axis column')
     parser.add_argument('-coly', type=int, help='0-based index of the y-axis column')
     parser.add_argument('-rows', type=int, default=100, help='Number of rows to take from head of CSV file. Default: 100')
+    parser.add_argument('-tol', type=float, default=.01, help='Minimum centroid movement after maximization in order to continue iterating. Default: .01')
+    parser.add_argument('-maxIter', type=int, default=300, help="Max iterations. Default:300")
+    parser.add_argument('-k', type=int, default=2, help="Number of clusters to form. Default:2")
     args=parser.parse_args()
 
     df = readColumnsFromCSV(args.file, args.colx, args.coly, args.rows)
 
-    kMeansClass = KMeans(2, .001, 300)
+    kMeansClass = KMeans(args.k, args.tol, args.maxIter)
     kMeansClass.fit(df.values)
 
     colors = 10*["g","r","c","b","k"]
