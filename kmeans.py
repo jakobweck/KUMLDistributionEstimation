@@ -36,14 +36,16 @@ class KMeans:
             for classification in self.classifications:
                 self.centroids[classification] = np.average(self.classifications[classification], axis=0)
             optimized = True
-            #for each centroid, compare the old and new centroids
+            #for each centroid, compare the old and new positions
             #if it moved less than the tolerance, keep 'optimized' bool true
             #otherwise, make it false
             for c in self.centroids:
                 originalCentroid = prevCentroids[c]
                 newCentroid = self.centroids[c]
                 #this fails if the originalCentroid is 0 - todo handle this
-                centroidMovement = np.sum((newCentroid-originalCentroid)/originalCentroid*100.0)
+                centroidMovement = 0
+                else:      
+                    centroidMovement = np.sum((newCentroid-originalCentroid)/originalCentroid*100.0)
                 centroidMoving = centroidMovement > self.tolerance
                 if centroidMoving:
                     optimized = False
