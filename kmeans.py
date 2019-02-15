@@ -58,7 +58,7 @@ class KMeans:
 def readColumnsFromCSV(filepath, col1, col2, numRows):
     csvFrame = pd.read_csv(os.getcwd()+ "\\" + filepath)
     csvFrame = csvFrame.iloc[:,[col1, col2]]
-    return csvFrame.head(max(len(csvFrame.index), numRows))
+    return csvFrame.head(min(len(csvFrame.index), numRows))
 
 def main():
     parser=argparse.ArgumentParser(
