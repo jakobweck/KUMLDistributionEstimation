@@ -80,9 +80,9 @@ class OneDGaussianMixedModeler:
             self.means = np.sum(self.data.reshape(len(self.data),1)*r,axis=0)/clusterMembers
             #recalculate covariances
             #
-            self.stdevs = []
+            mu_c = []
             for c in range(len(r[0])):
-                self.stdevs.append(((1/clusterMembers[c])*np.dot(((np.array(r[:,c]).reshape(60,1))*(self.data.reshape(len(self.data),1)-self.means[c])).T,
+                mu_c.append(((1/clusterMembers[c])*np.dot(((np.array(r[:,c]).reshape(60,1))*(self.data.reshape(len(self.data),1)-self.means[c])).T,
                              (self.data.reshape(len(self.data),1)-self.means[c]))).flatten())
             plt.show()
     
