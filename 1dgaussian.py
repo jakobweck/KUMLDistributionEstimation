@@ -122,7 +122,10 @@ def main():
     gmm.runExMax()
 
 def readColumnsFromCSV(filepath, col, numRows):
-    csvFrame = pd.read_csv(os.getcwd()+ "\\" + filepath)
+    if os.name == 'nt':
+        csvFrame = pd.read_csv(os.getcwd()+ "\\" + filepath)
+    else:
+        csvFrame = pd.read_csv(filepath)
     csvFrame = csvFrame.iloc[:,[col]]
     return csvFrame.head(min(len(csvFrame.index), numRows))
 
