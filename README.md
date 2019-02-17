@@ -1,5 +1,7 @@
 # KUMLDistributionEstimation
 ##Distribution Estimation project for EECS738
+
+
 For our project, we chose to look for clusters in datasets by implementing the k-means and Gaussian mixture model methods.
 
 We based our k-means implementation on a tutorial from pythonprogramming.net and our 1D and 2D GMM implementations on a set of notes from CS274 at UCI and a tutorial from python-course.eu.
