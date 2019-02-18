@@ -11,10 +11,11 @@ We did all our work in Python, first writing a script which runs k-means (with u
 
 We chose as our datasets the Portuguese Red Wine Quality and Glass Classification csv files from the UCIML data on Kaggle. 
 Although many dimensions in these datasets displayed mostly continuous data without interesting clusters, 
-some insights could be obtained. The glass dataset classifies its members by glass usage 
-- whether the glass described is used in a building, a vehicle window, a container, tableware, or for headlamps.
+some insights could be obtained. The Gaussian mixture model utility with k=1 is useful for the estimation of a single distribution to represent a set of data without subsets.
+The glass dataset classifies its members by glass usage -
+whether the glass described is used in a building, a vehicle window, a container, tableware, or for headlamps.
 Performing k-means with this type as one axis and the glass' weight-percent content of an element reveals 
 that non-window glasses (types 5,6,7) tend to cluster together as opposed to window glasses (types 1,2,3).
-For example, when using magnesium content as the x-axis, non-window glasses cluster at the low end of magnesium content,
-while window glasses cluster at the high end. When using k=2, the two clusters produced almost always represent
+For example, when using magnesium content as the x-axis, non-window glasses cluster loosely at the low end of magnesium content,
+while window glasses cluster tightly at the high end. When using k=2, the two clusters produced almost always represent
 non-window and window glasses, informing us that the two generally display different elemental characteristics.
