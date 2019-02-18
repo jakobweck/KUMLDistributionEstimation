@@ -30,6 +30,9 @@ class TwoDGaussianMM:
         # Code sourced/referenced from https://www.python-course.eu/expectation_maximization_and_gaussian_mixture_models.php
         # sets reg covariance to initial data
         print(self.initData)
+        print(min(self.initData[:,0]))
+        print(max(self.initData[:,0]))
+        print((self.number_of_sources))
         self.reg_cov = 1e-6 * np.identity(len(self.initData[0]))
         # Creates a grid based on initial data, XY
         x,y = np.meshgrid(np.sort(self.initData[:,0]), np.sort(self.initData[:,1]))
@@ -37,7 +40,7 @@ class TwoDGaussianMM:
         self.XY = np.array([x.flatten(), y.flatten()]).T
 
         # Define the initial mean, standard deviation, and weights
-        self.means = np.random.randint(min(self.initData[:,0]), max(self.initData[:,0]), 
+        self.means = np.random.randint(min(self.initData[:,0]), max(self.initData[:,0])+1, 
             size=(self.number_of_sources, len(self.initData[0])))
         self.stdevs = np.zeros((self.number_of_sources, len(self.initData[0]), len(self.initData[0])))
 
@@ -86,13 +89,22 @@ class TwoDGaussianMM:
                 # Calculate the new weight
                 self.weights.append(m_c/np.sum(r_ic))
                 log_likelihoods.append(np.log(np.sum([k*multivariate_normal(self.means[i],self.stdevs[j]).pdf(self.data) for k,i,j in zip(self.weights,range(len(self.means)),range(len(self.stdevs)))])))
-
-            # Create a second plot to show changes per iteration
-            fig2 = plt.figure(figsize=(10,10))
-            ax1 = fig2.add_subplot(111) 
-            ax1.set_title('Log-Likelihood')
-            ax1.plot(range(0,self.iterations,1),log_likelihoods)
+                
+                """
+                This process of E step followed by a M step is now iterated a number of n times. In the second step for instance,
+                we use the calculated pi_new, mu_new and cov_new to calculate the new r_ic which are then used in the second M step
+                to calculat the mu_new2 and cov_new2 and so on....
+                """
             plt.show()
+        fig3 = plt.figure(figsize=(10,10))
+        ax2 = fig3.add_subplot(111)
+        ax2.scatter(self.data[:,0],self.data[:,1])
+        for m,c in zip(self.means,self.stdevs):
+            multi_normal = multivariate_normal(mean=m,cov=c)
+            ax2.contour(np.sort(self.data[:,0]),np.sort(self.data[:,1]),multi_normal.pdf(self.XY).reshape(len(self.data),len(self.data)),colors='black',alpha=0.3)
+            ax2.scatter(m[0],m[1],c='grey',zorder=10,s=100)
+            ax2.set_title('Final state')
+        plt.show()
     
 def main():
     style.use('fivethirtyeight')
@@ -113,11 +125,11 @@ def main():
 
     dataSet = np.array([[]])
     dataColumns = [args.colx,args.coly]
-    if(args.testdata):
+    if(not args.testdata):
         df = pd.read_csv(args.file, nrows=args.rows, usecols=dataColumns)
         print(df)
         for row in range(0,args.rows):
-            rowSet = df.loc[[row]].to_numpy()
+            rowSet = df.loc[[row]].values
             if dataSet.size == 0:
                 dataSet = rowSet
             else:
