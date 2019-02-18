@@ -9,7 +9,7 @@ import sys
 import os
 
 class OneDGaussianMixtureModeler:
-    def __init__(self,X,iterations,clusters,showAll):
+    def __init__(self,X,iterations,clusters,showAll, axisName):
         self.clusters = clusters
         self.iterations = iterations
         self.data = X
@@ -19,6 +19,7 @@ class OneDGaussianMixtureModeler:
         self.stdevs = None
         self.showAll = showAll
         self.colors = 10*["g","r","c","b","k"]
+        self.axisName = axisName
 
     
     def runExMax(self):
@@ -26,8 +27,9 @@ class OneDGaussianMixtureModeler:
         #arbitrarily set initial values
         #ideally we would run a more complex algorithm to decide these
         #1d k-means can apparently be used to set good initial means
-        #for nowmeans - evenly spaced ints within the data range
+        #for now means - evenly spaced ints within the data range
         self.means = np.linspace(min(self.data),max(self.data),num=self.clusters)
+        #initial weights assume points evenly distributed between clusters
         self.weights = [1/self.clusters]*self.clusters
         #pretty much made this up based on some experimentation
         #at least gives us a feasible value where the stdevs aren't bigger than the range of data or anything
@@ -99,8 +101,8 @@ class OneDGaussianMixtureModeler:
                 variances.append(variance)                          
             self.stdevs = (np.sqrt(variances).flatten().tolist())
             if(self.showAll or iter==(self.iterations-1)):
+                plt.xlabel(self.axisName)
                 plt.show()
-                print(self.stdevs)
     
 def main():
     style.use('fivethirtyeight')
@@ -119,8 +121,10 @@ def main():
         raise ValueError("Clusters must be <=10.")
 
     dataSet = np.array([])
-    if(not args.testData):
+    varName = "test"
+    if(not args.testdata):
         df = readColumnsFromCSV(args.file, args.colx, args.rows)
+        varName = df.columns[0]
         dataSet = df.to_numpy().flatten()
     else:
         initData = np.linspace(-5,5,num=20) #get range of 20 evenly spaced numbers from -5 to 5
@@ -129,7 +133,7 @@ def main():
         data2 = initData*np.random.rand(len(initData)) # from -5 to 5
         dataSet = np.stack((data0,data1,data2)).flatten() # Combine the clusters to get the random datapoints from above
 
-    gmm = OneDGaussianMixtureModeler(dataSet, args.iters, args.clusters, args.showallplots)
+    gmm = OneDGaussianMixtureModeler(dataSet, args.iters, args.clusters, args.showallplots, varName)
     gmm.runExMax()
 
 def readColumnsFromCSV(filepath, col, numRows):
