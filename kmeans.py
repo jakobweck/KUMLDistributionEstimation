@@ -78,25 +78,20 @@ def main():
     kMeansClass.fit(df.values)
 
     colors = 10*["g","r","c","b","k"]
-    #graph the centroids as black circles
-    for centroid in kMeansClass.centroids:
-        x = kMeansClass.centroids[centroid][0]
-        y = kMeansClass.centroids[centroid][1]
-        plt.scatter(x, y,marker="o", color="k", s=150, linewidths=5)
+
     #graph the data points as Xs colored w/r/t their centroid
     for classification in kMeansClass.classifications:
         color = colors[classification]
         for dataPoint in kMeansClass.classifications[classification]:
             plt.scatter(dataPoint[0], dataPoint[1], marker="x", color=color, s=150, linewidths=5)
-
+    #graph the centroids as black circles
+    for centroid in kMeansClass.centroids:
+        x = kMeansClass.centroids[centroid][0]
+        y = kMeansClass.centroids[centroid][1]
+        plt.scatter(x, y,marker="o", color="k", s=150, linewidths=5)
     print("X axis:" + df.columns[0])
     print("Y axis:" + df.columns[1])
     plt.xlabel(df.columns[0])
     plt.ylabel(df.columns[1])
-    #print(kMeansClass.predict([0.6, 9.0]))
     plt.show() 
-    while(True):
-        xCoord = input("X coordinate for prediction: ")
-        yCoord = input("Y coordinate for prediction: ")
-        print(kMeansClass.predict([float(xCoord), float(yCoord)]))
 main()
