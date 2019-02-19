@@ -1,4 +1,5 @@
 ##Exploring 2D GMM's (Multi-dimensional)
+##not perfectly implemented - clusters don't seem to separate nicely
 import matplotlib.pyplot as plt
 from matplotlib import style
 import numpy as np
@@ -136,11 +137,19 @@ def main():
                 dataSet = np.append(dataSet, rowSet, axis=0)
         print("Input Data Collected")
     else:
-        initData = np.linspace(-5,5,num=20) #get range of 20 evenly spaced numbers from -5 to 5
-        data0 = initData*np.random.rand(len(initData))+15 # Use these to generate 3 random datasets of 20 points - first from 5 to 15
-        data1 = initData*np.random.rand(len(initData))-15 # from -15 to -5
-        data2 = initData*np.random.rand(len(initData)) # from -5 to 5
-        dataSet = np.stack((data0,data1,data2)).flatten() # Combine the clusters to get the random datapoints from above
+        initDataX = np.linspace(-5,5,num=20) #get range of 20 evenly spaced numbers from -5 to 5
+        data0X = initDataX*np.random.rand(len(initDataX))+15 # Use these to generate 3 random datasets of 20 points - first from 5 to 15
+        data1X = initDataX*np.random.rand(len(initDataX))-15 # from -15 to -5
+        data2X = initDataX*np.random.rand(len(initDataX)) # from -5 to 5
+        dataSetX = np.stack((data0X,data1X,data2X)).flatten() # Combine the clusters to get the random datapoints from above
+
+        initDataY = np.linspace(-5,5,num=20) #do it again for the y column
+        data0Y = initDataY*np.random.rand(len(initDataY))+15 
+        data1Y = initDataY*np.random.rand(len(initDataY))-15 
+        data2Y = initDataY*np.random.rand(len(initDataY))
+        dataSetY = np.stack((data0Y,data1Y,data2Y)).flatten() 
+
+        dataSet = np.column_stack((dataSetX, dataSetY)) #concat both 1d arrays into a 2-column 2d arrays
         print("Auto-Generated Data Collected")
 
     gmm = TwoDGaussianMM(dataSet, args.iters, args.clusters, args.showallplots)
