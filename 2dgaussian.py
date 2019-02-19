@@ -22,7 +22,7 @@ class TwoDGaussianMM:
 
         self.means = None
         self.weights = None
-        self.stdevs = None
+        self.covars = None
         self.showAll = showAll
         self.colors = 10*["g","r","c","b","k"]
 
@@ -43,13 +43,12 @@ class TwoDGaussianMM:
         # Define the initial mean, standard deviation, and weights
         self.means = np.random.randint(min(self.initData[:,0]), max(self.initData[:,0])+1, 
             size=(self.number_of_sources, len(self.initData[0])))
-        self.stdevs = np.zeros((self.number_of_sources, len(self.initData[0]), len(self.initData[0])))
+        self.covars = np.zeros((self.number_of_sources, len(self.initData[0]), len(self.initData[0])))
 
-        for dim in range(len(self.stdevs)):
-            np.fill_diagonal(self.stdevs[dim], 5)
+        for dim in range(len(self.covars)):
+            np.fill_diagonal(self.covars[dim], 5)
 
         self.weights = np.ones(self.number_of_sources) / self.number_of_sources
-        log_likelihoods = []
 
         #initial plot based on bounds
         fig = plt.figure(figsize = (10,10))
@@ -58,7 +57,7 @@ class TwoDGaussianMM:
         ax0.set_title('Initial state')
 
         # Initial plot created, now scatter data
-        for m,c in zip(self.means, self.stdevs):
+        for m,c in zip(self.means, self.covars):
             c += self.reg_cov
             multi_normal = multivariate_normal(mean=m, cov=c)
             ax0.contour(np.sort(self.initData[:,0]), np.sort(self.initData[:,1]), multi_normal.pdf(self.XY).reshape(len(self.initData), len(self.initData)), colors='black', alpha=0.3)
@@ -67,29 +66,27 @@ class TwoDGaussianMM:
         for iter in range(self.iterations):
             # EXPECTATION, E Step
             #Create array with datapoints * gaussians /// output probabilities
-            r_ic = np.zeros((len(self.initData), len(self.stdevs)))
+            r_ic = np.zeros((len(self.initData), len(self.covars)))
 
-            for m,co,p,r in zip(self.means, self.stdevs, self.weights, range(len(r_ic[0]))):
+            for m,co,p,r in zip(self.means, self.covars, self.weights, range(len(r_ic[0]))):
                 co += self.reg_cov
                 mn = multivariate_normal(mean=m, cov=co)
                 r_ic[:,r] = p*mn.pdf(self.initData)/np.sum([pi_c*multivariate_normal(mean=m, cov=cov_c).pdf(self.data) 
-                    for pi_c, mu_c, cov_c in zip(self.weights, self.means, self.stdevs + self.reg_cov)], axis=0)
+                    for pi_c, mu_c, cov_c in zip(self.weights, self.means, self.covars + self.reg_cov)], axis=0)
             
             # Calculate new mean vector and covariance matrices based on x_i to classes c --> r_ic
             self.means = []
-            self.stdevs = []
+            self.covars = []
             self.weights = []
-            log_likelihood = []
 
             for val_c in range(len(r_ic[0])):
                 m_c = np.sum(r_ic[:,val_c], axis = 0)
                 mu_c = (1/m_c)*np.sum(self.initData*r_ic[:,val_c].reshape(len(self.initData),1),axis=0)
                 self.means.append(mu_c)
                 # Calculate the standard deviation / covariance matrix
-                self.stdevs.append(((1/m_c)*np.dot((np.array(r_ic[:,val_c]).reshape(len(self.initData),1)*(self.initData-mu_c)).T,(self.initData-mu_c)))+self.reg_cov)
+                self.covars.append(((1/m_c)*np.dot((np.array(r_ic[:,val_c]).reshape(len(self.initData),1)*(self.initData-mu_c)).T,(self.initData-mu_c)))+self.reg_cov)
                 # Calculate the new weight
                 self.weights.append(m_c/np.sum(r_ic))
-                log_likelihoods.append(np.log(np.sum([k*multivariate_normal(self.means[i],self.stdevs[j]).pdf(self.data) for k,i,j in zip(self.weights,range(len(self.means)),range(len(self.stdevs)))])))
                 
                 """
                 This process of E step followed by a M step is now iterated a number of n times. In the second step for instance,
@@ -100,7 +97,7 @@ class TwoDGaussianMM:
         fig3 = plt.figure(figsize=(10,10))
         ax2 = fig3.add_subplot(111)
         ax2.scatter(self.data[:,0],self.data[:,1])
-        for m,c in zip(self.means,self.stdevs):
+        for m,c in zip(self.means,self.covars):
             multi_normal = multivariate_normal(mean=m,cov=c)
             ax2.contour(np.sort(self.data[:,0]),np.sort(self.data[:,1]),multi_normal.pdf(self.XY).reshape(len(self.data),len(self.data)),colors='black',alpha=0.3)
             ax2.scatter(m[0],m[1],c='grey',zorder=10,s=100)
